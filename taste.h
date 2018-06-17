@@ -12,6 +12,7 @@ public:
 		void setNote(int midinote);
 		void update();
 		static void midibegin();
+    bool isPlaying();
 		
 private:
 		int midinote;

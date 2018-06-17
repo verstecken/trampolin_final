@@ -18,15 +18,16 @@ Taste::~Taste() {
 
 void Taste::play(int duration, int velo) {
 
-  Serial.print("Note: ");
-  Serial.print(midinote);
-  Serial.print(" Länge: ");
-  Serial.println(duration);
-
-
-  this->duration = duration;
-  timer.restart();
-  MIDI.sendNoteOn(midinote, velo, 1);
+  if(!timer.isRunning()) { 
+    Serial.print("Note: ");
+    Serial.print(midinote);
+    Serial.print(" Duration: ");
+    Serial.println(duration);
+  
+    this->duration = duration;
+    timer.restart();
+    MIDI.sendNoteOn(midinote, velo, 1);
+  }
 }
 
 void Taste::update() {
@@ -34,9 +35,12 @@ void Taste::update() {
   if (timer.hasPassed(duration) && timer.isRunning()) {
     timer.stop();
     MIDI.sendNoteOff(midinote, 0, 1);
-    Serial.println("AUS");
   }
 
+}
+
+bool Taste::isPlaying() {
+  return timer.isRunning();
 }
 
 void Taste::setNote(int midinote) {

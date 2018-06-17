@@ -1,16 +1,16 @@
 #include "taste.h"
-#include <MIDI.h>  
+#include "sensor.h"
 
-//MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI); // using TX1 for sending MIDI signal
-  
+Sensor sensor;
 Taste tasten[60];
 
 void setup() {
+  sensor.init();
   Taste::midibegin();
   Serial.begin(115200);
 
-  for(int i = 0; i < 60; i++) {
-    tasten[i].setNote(i+31);
+  for (int i = 0; i < 60; i++) {
+    tasten[i].setNote(i + 31);
   }
 
   tasten[25].play();
@@ -18,12 +18,20 @@ void setup() {
 }
 
 void loop() {
+  sensor.update();
 
+  Serial.println(sensor.getDegreeX());
   
-
-
-  for(int i = 0; i < 60; i++) {
-    tasten[i].update();
-  }  
-
+  delay(50);
+  
+  
+  updateTasten();
 }
+
+
+void updateTasten() {
+  for (int i = 0; i < 60; i++) {
+    tasten[i].update();
+  }
+}
+

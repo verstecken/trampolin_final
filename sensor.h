@@ -13,6 +13,7 @@ class Sensor {
     void init();
     double getDegreeX();
     double getDegreeY();
+    void calibrate();
 
   private:
     const uint8_t IMUAddress = 0x68; // AD0 is logic low on the PCB
@@ -28,6 +29,7 @@ class Sensor {
     double gyroXangle, gyroYangle; // Angle calculate using the gyro only
     double compAngleX, compAngleY; // Calculated angle using a complementary filter
     double kalAngleX, kalAngleY; // Calculated angle using a Kalman filter
+    double offsetX, offsetY;
 
     uint8_t i2cWrite(uint8_t registerAddress, uint8_t data, bool sendStop);
     uint8_t i2cWrite(uint8_t registerAddress, uint8_t *data, uint8_t length, bool sendStop);

@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:mega",
+    "configuration": "cpu=atmega2560",
+    "sketch": "trampolin_final.ino",
+    "port": "/dev/cu.usbmodemFA131"
+}

@@ -32,6 +32,8 @@ int blackkeys[] = {1, 3, 6, 8, 11, 13, 15, 18, 20, 23, 25, 27, 30, 32, 35, 37, 3
 int whitekeys[] = {0, 2, 4, 5, 7, 9, 10, 12, 14, 16, 17, 19, 21, 22, 24, 26, 28, 29, 31, 33, 34, 36, 38, 40, 41, 43, 45, 46, 48, 50, 52, 53, 55, 57, 58};
 int welcome[] = {6, 13, 20, 21, 25, 30, 32, 35, 37, 42, 59, 54};
 bool direction = true;
+bool b_direction = true;
+bool w_direction = true;
 int note = 0;
 int note2 = 0;
 int note3 = 0;
@@ -40,6 +42,7 @@ int xNote;
 
 int part = 0;
 int partNote = 0;
+int partNote2 = 0;
 bool enterModeFirstTime[20]; // wieder auf true setzen bei modewechsel
 bool enterPartFirstTime[20]; // wieder auf true setzen bei partwechselwechsel
 int partNote_minus3;
@@ -132,7 +135,6 @@ void loop()
     }
     if (mode == 6)
     {
-      //partNote = map(jump_depth, 0, 40, 4, 60);
       partNote = jump_depth;
       Serial.print("PARTNOTE: ");
       Serial.println(partNote);
@@ -161,7 +163,7 @@ void loop()
       }
     }*/
 
-  int testmode = 7; // beware the jump counter
+  int testmode = 3; // beware the jump counter
 
   if (testmode > 0)
   {
@@ -272,7 +274,82 @@ void loop()
 
     break;
   case 3:
-    if (!playTimer.isRunning())
+
+  {
+    const int tempo = 70;
+
+    if (playTimer.hasPassed(tempo, true))
+    {
+
+      /*int blackkey = partNote%25;
+      int whitekey = partNote%35;
+
+      if(!b_direction) {
+        blackkey = 24-blackkey;
+      }
+      if(!w_direction) {
+        whitekey = 34-whitekey;
+      }
+
+      Serial.println(whitekey);
+
+      tasten[blackkeys[blackkey]].play(60, 50);
+      tasten[whitekeys[whitekey]].play(60, 50);
+
+      if(partNote%25==0) {
+        b_direction = !b_direction;
+      }
+
+      if(partNote%35==0) {
+        w_direction = !w_direction;
+      }
+
+      partNote++;*/
+
+      tasten[blackkeys[partNote]].play(60, 50);
+      tasten[whitekeys[partNote2]].play(60, 50);
+
+      if (b_direction)
+      {
+        partNote++;
+        if (partNote > 24)
+        {
+          partNote = 23;
+          b_direction = !b_direction;
+        }
+      }
+      else
+      {
+        partNote--;
+              if (partNote < 0)
+        {
+          partNote = 1;
+          b_direction = !b_direction;
+        }
+      }
+
+      if (w_direction)
+      {
+        partNote2++;
+        if (partNote2 > 34)
+        {
+          partNote2 = 33;
+          w_direction = !w_direction;
+        }
+      }
+      else
+      {
+        partNote2--;
+        if (partNote2 < 0)
+        {
+          partNote2 = 1;
+          w_direction = !w_direction;
+        }
+      }
+    }
+  }
+
+  /*if (!playTimer.isRunning())
     {
 
       for (int i = 0; i < 25; i++)
@@ -305,8 +382,9 @@ void loop()
       playTimer.stop();
       direction = !direction;
     }
+    */
 
-    break;
+  break;
   case 4:
 
     if (playTimer.hasPassed(jump_interval / 2, true))
@@ -376,8 +454,8 @@ void loop()
   case 7: // mode 7: repeating half time
 
   {
-    const int interval = 35; // milliseconds between reorded notes
-    const int offset = 12; // how many last recorded notes
+    const int interval = 35;      // milliseconds between reorded notes
+    const int offset = 12;        // how many last recorded notes
     const int max_echo_notes = 7; // how many last recorded notes
 
     if (x > 2)

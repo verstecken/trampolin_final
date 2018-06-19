@@ -375,12 +375,16 @@ void loop()
     break;
   case 7: // mode 7: repeating half time
 
+  {
+    const int interval = 35; // milliseconds between reorded notes
+    const int offset = 12; // how many last recorded notes
+    const int max_echo_notes = 7; // how many last recorded notes
+
     if (x > 2)
     {
-
       xNote = map((int)x, 0, 40, 0, 59);
 
-      if (playTimer.hasPassed(23, true))
+      if (playTimer.hasPassed(interval, true))
       {
         if (xNote != 17)
         {
@@ -395,13 +399,11 @@ void loop()
     {
       Serial.println("Echo");
 
-      const int offset = 0;
-
-      for (int i = rec < 10 ? rec : rec - 10; i < rec; i++)
+      for (int i = rec < max_echo_notes ? rec : rec - max_echo_notes; i < rec; i++)
       {
         if ((record[i] + offset) != 17 && (record[i] + offset) < 60)
         {
-          tasten[(record[i] + offset) % 60].playDelayed(i * 23, 40, 127);
+          tasten[(record[i] + offset) % 60].playDelayed(i * interval, 40, 127);
         }
       }
 
@@ -409,8 +411,8 @@ void loop()
       rec = 0;
       memset(record, 0, sizeof(record));
     }
-
-    break;
+  }
+  break;
   case 8: // mode 8 working with scales
 
     if (enterModeFirstTime[8])

@@ -122,11 +122,11 @@ void loop()
     {
       if (jump_counter % 2 == 0)
       {
-        Taste::overrideVelo(2);
+        //Taste::overrideVelo(2);
       }
       else
       {
-        Taste::overrideVelo(50);
+        //Taste::overrideVelo(50);
       }
     }
     if (mode == 5)
@@ -276,113 +276,57 @@ void loop()
   case 3:
 
   {
-    const int tempo = 70;
+    const int tempo = 30;
 
-    if (playTimer.hasPassed(tempo, true))
+    if (x < 1)
     {
 
-      /*int blackkey = partNote%25;
-      int whitekey = partNote%35;
-
-      if(!b_direction) {
-        blackkey = 24-blackkey;
-      }
-      if(!w_direction) {
-        whitekey = 34-whitekey;
-      }
-
-      Serial.println(whitekey);
-
-      tasten[blackkeys[blackkey]].play(60, 50);
-      tasten[whitekeys[whitekey]].play(60, 50);
-
-      if(partNote%25==0) {
-        b_direction = !b_direction;
-      }
-
-      if(partNote%35==0) {
-        w_direction = !w_direction;
-      }
-
-      partNote++;*/
-
-      tasten[blackkeys[partNote]].play(60, 50);
-      tasten[whitekeys[partNote2]].play(60, 50);
-
-      if (b_direction)
+      if (playTimer.hasPassed(tempo, true))
       {
-        partNote++;
-        if (partNote > 24)
+
+        tasten[blackkeys[partNote]].play(70, 100);
+        tasten[whitekeys[partNote2]].play(70, 100);
+
+        if (b_direction)
         {
-          partNote = 23;
-          b_direction = !b_direction;
+          partNote++;
+          if (partNote > 24)
+          {
+            partNote = 23;
+            b_direction = !b_direction;
+          }
         }
-      }
-      else
-      {
-        partNote--;
-              if (partNote < 0)
+        else
         {
-          partNote = 1;
-          b_direction = !b_direction;
+          partNote--;
+          if (partNote < 0)
+          {
+            partNote = 1;
+            b_direction = !b_direction;
+          }
         }
-      }
 
-      if (w_direction)
-      {
-        partNote2++;
-        if (partNote2 > 34)
+        if (w_direction)
         {
-          partNote2 = 33;
-          w_direction = !w_direction;
+          partNote2++;
+          if (partNote2 > 34)
+          {
+            partNote2 = 33;
+            w_direction = !w_direction;
+          }
         }
-      }
-      else
-      {
-        partNote2--;
-        if (partNote2 < 0)
+        else
         {
-          partNote2 = 1;
-          w_direction = !w_direction;
+          partNote2--;
+          if (partNote2 < 0)
+          {
+            partNote2 = 1;
+            w_direction = !w_direction;
+          }
         }
       }
     }
   }
-
-  /*if (!playTimer.isRunning())
-    {
-
-      for (int i = 0; i < 25; i++)
-      {
-        if (direction)
-        {
-          tasten[blackkeys[i]].playDelayed(i * 70, 60, 50);
-        }
-        else
-        {
-          tasten[blackkeys[24 - i]].playDelayed(i * 70, 60, 50);
-        }
-      }
-      for (int i = 0; i < 35; i++)
-      {
-        if (direction)
-        {
-          tasten[whitekeys[i]].playDelayed(i * 70, 60, 50);
-        }
-        else
-        {
-          tasten[whitekeys[34 - i]].playDelayed(i * 70, 60, 50);
-        }
-      }
-
-      playTimer.restart();
-    }
-    else if (playTimer.hasPassed(25 * 70))
-    {
-      playTimer.stop();
-      direction = !direction;
-    }
-    */
 
   break;
   case 4:

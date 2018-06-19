@@ -40,10 +40,10 @@ void Taste::playDelayed(int delay, int duration, int velo) {
 
 void Taste::play(int duration, int velo) {
   if (!timer.isRunning()) {
-    Serial.print("Note: ");
+    /*Serial.print("Note: ");
     Serial.print(midinote);
     Serial.print(" Duration: ");
-    Serial.println(duration);
+    Serial.println(duration);*/
 
     this->duration = duration;
     timer.restart();

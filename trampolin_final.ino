@@ -107,7 +107,7 @@ void loop()
     jump_counter++;
     jump_depth = (int)lastValues[1];
     offTimer.stop();
-    
+
     Serial.print(" JUMPS # ");
     Serial.println(jump_counter);
     Serial.print("INTERVAL: ");
@@ -382,30 +382,33 @@ void loop()
 
       if (playTimer.hasPassed(23, true))
       {
-        tasten[xNote].play(40, 127);
+        if (xNote != 17)
+        {
+          tasten[xNote].play(40, 127);
+        }
         record[rec] = xNote;
         rec++;
-
-        for (int i = 0; i < rec; i++)
-        {
-          Serial.print(record[i]);
-          Serial.print(", ");
-        }
-        Serial.println();
       }
     }
 
-    if(repeatTimer.hasPassed(jump_interval / 2) && repeatTimer.isRunning() && jump_interval < 1000) {
-        Serial.println("Repeat now!!!");
+    if (repeatTimer.hasPassed(jump_interval / 3) && repeatTimer.isRunning() && jump_interval < 1000)
+    {
+      Serial.println("Echo");
 
-        for (int i = 0; i < rec; i++) {
-          tasten[record[i]].playDelayed(i * 23, 40, 127);
+      const int offset = 0;
+
+      for (int i = rec < 10 ? rec : rec - 10; i < rec; i++)
+      {
+        if ((record[i] + offset) != 17 && (record[i] + offset) < 60)
+        {
+          tasten[(record[i] + offset) % 60].playDelayed(i * 23, 40, 127);
         }
-
-        repeatTimer.stop();
-        rec = 0;
-        memset(record, 0, sizeof(record));
       }
+
+      repeatTimer.stop();
+      rec = 0;
+      memset(record, 0, sizeof(record));
+    }
 
     break;
   case 8: // mode 8 working with scales

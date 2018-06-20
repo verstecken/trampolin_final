@@ -135,8 +135,8 @@ void loop()
       playTimer.restart();
       xNote = map(jump_depth, 18, 40, 0, 59);
       tasten[xNote].play(150, 100);
-      tasten[xNote+1].play(150, 100);
-      tasten[xNote+5].play(150, 100);
+      tasten[xNote + 1].play(150, 100);
+      tasten[xNote + 5].play(150, 100);
     }
     if (mode == 5)
     {
@@ -172,7 +172,7 @@ void loop()
       }
     }*/
 
-  int testmode = 4; // beware the jump counter
+  int testmode = 10; // beware the jump counter
 
   if (testmode > 0)
   {
@@ -362,9 +362,9 @@ void loop()
     if (playTimer.hasPassed(jump_interval / 3) & playTimer.isRunning())
     {
       Serial.println(xNote);
-      tasten[xNote+12].play(80, 100);
-      tasten[xNote+1+12].play(80, 100);
-      tasten[xNote+5+12].play(80, 100);
+      tasten[xNote + 12].play(80, 100);
+      tasten[xNote + 1 + 12].play(80, 100);
+      tasten[xNote + 5 + 12].play(80, 100);
       playTimer.stop();
     }
 
@@ -493,8 +493,54 @@ void loop()
   case 9: // mode 9 nothing
 
     break;
-  }
+  case 10: // mode 10 from middle to the sides
 
+    if (enterModeFirstTime[10])
+    {
+      Taste::setPedal(true);
+      enterModeFirstTime[10] = false;
+      partNote = 30;
+      partNote2 = 29;
+    }
+
+    {
+
+
+      if (playTimer.hasPassed(30, true))
+      {
+        //partNote += minor[partNote % 8];
+
+        if (!direction)
+        {
+          tasten[partNote].play(80, 127);
+          partNote++;
+        }
+        else
+        {
+          tasten[partNote2].play(80, 127);
+          partNote2--;
+        }
+
+
+          if (partNote > 59)
+          {
+            partNote = 30;
+          }
+          if (partNote2 < 0)
+          {
+            partNote2 = 29;
+            gotoMode(11);
+          }
+
+        direction = !direction;
+      }
+
+    }
+    break;
+  case 11:
+
+    break;
+  }
 
   if (digitalRead(12) == LOW)
   {

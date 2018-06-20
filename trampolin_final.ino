@@ -26,6 +26,7 @@ int total_time = millis();
 int last_jump_time = 0;
 int jump_interval = 0;
 int jump_depth = 0;
+int jumps_when_enter = 0;
 
 // composition vars
 int blackkeys[] = {1, 3, 6, 8, 11, 13, 15, 18, 20, 23, 25, 27, 30, 32, 35, 37, 39, 42, 44, 47, 49, 51, 54, 56, 59};
@@ -80,7 +81,7 @@ void setup()
 void loop()
 {
   sensor.update();
-  //debug();
+  //printDegrees();
   x = sensor.getDegreeX();
   y = sensor.getDegreeY();
   total_time = millis();
@@ -129,6 +130,14 @@ void loop()
         //Taste::overrideVelo(50);
       }
     }
+    if (mode == 4)
+    {
+      playTimer.restart();
+      xNote = map(jump_depth, 18, 40, 0, 59);
+      tasten[xNote].play(150, 100);
+      tasten[xNote+1].play(150, 100);
+      tasten[xNote+5].play(150, 100);
+    }
     if (mode == 5)
     {
       Taste::setPedal(jump_counter % 8 < 4); // gibt true or false
@@ -163,7 +172,7 @@ void loop()
       }
     }*/
 
-  int testmode = 3; // beware the jump counter
+  int testmode = 4; // beware the jump counter
 
   if (testmode > 0)
   {
@@ -200,7 +209,7 @@ void loop()
     }
 
     // transition mode 3 to 4 after 10 jumps
-    if (mode == 3 && jump_counter == 10)
+    if (mode == 3 && jump_counter == 6)
     {
       gotoMode(4);
       Taste::overrideVelo(0);
@@ -276,7 +285,17 @@ void loop()
   case 3:
 
   {
-    const int tempo = 30;
+
+    if (enterModeFirstTime[3])
+    {
+      jumps_when_enter = jump_counter;
+      enterModeFirstTime[3] = false;
+    }
+
+    int jump_counter_mode3 = jump_counter - jumps_when_enter;
+
+    const int tempo = 100 - ((jump_counter_mode3)*5); // ist irgendwann zu schnell und hört auf
+    //const int tempo = 30;
 
     if (x < 1)
     {
@@ -331,10 +350,30 @@ void loop()
   break;
   case 4:
 
-    if (playTimer.hasPassed(jump_interval / 2, true))
+    if (enterModeFirstTime[4])
     {
-      tasten[35].play(150, 10);
+      jumps_when_enter = jump_counter;
+      enterModeFirstTime[4] = false;
+      Taste::setPedal(true);
     }
+
+    // xNote wird beim Trigger definiert
+
+    if (playTimer.hasPassed(jump_interval / 3) & playTimer.isRunning())
+    {
+      Serial.println(xNote);
+      tasten[xNote+12].play(80, 100);
+      tasten[xNote+1+12].play(80, 100);
+      tasten[xNote+5+12].play(80, 100);
+      playTimer.stop();
+    }
+
+    /*if (playTimer.hasPassed(jump_interval / 3 * 2) & playTimer.isRunning())
+    {
+      Serial.println(xNote);
+      tasten[xNote+5+24].play(150, 100);
+      playTimer.stop();
+    }*/
 
     break;
   case 5:
@@ -395,11 +434,11 @@ void loop()
     }
 
     break;
-  case 7: // mode 7: repeating half time
+  case 7: // mode 7: like 6 but with echo
 
   {
-    const int interval = 35;      // milliseconds between reorded notes
-    const int offset = 12;        // how many last recorded notes
+    const int interval = 35;      // milliseconds between reorded/played notes
+    const int offset = 0;         // echo notes offset
     const int max_echo_notes = 7; // how many last recorded notes
 
     if (x > 2)
@@ -417,9 +456,9 @@ void loop()
       }
     }
 
-    if (repeatTimer.hasPassed(jump_interval / 3) && repeatTimer.isRunning() && jump_interval < 1000)
+    if (repeatTimer.hasPassed(jump_interval / 3) && repeatTimer.isRunning() && jump_interval < 1400)
     {
-      Serial.println("Echo");
+      Serial.println("Playing Echo");
 
       for (int i = rec < max_echo_notes ? rec : rec - max_echo_notes; i < rec; i++)
       {
@@ -456,6 +495,7 @@ void loop()
     break;
   }
 
+
   if (digitalRead(12) == LOW)
   {
     sensor.calibrate();
@@ -471,7 +511,7 @@ void updateTasten()
   }
 }
 
-void debug()
+void printDegrees()
 {
   Serial.print("X: ");
   Serial.print(x);
@@ -484,6 +524,7 @@ void gotoMode(int m)
   if (mode != m)
   {
     mode = m;
+    Taste::overrideVelo(0);
     Serial.print("Mode: ");
     Serial.println(m);
   }

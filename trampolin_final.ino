@@ -75,7 +75,7 @@ void setup()
   }
 
   repeatTimer.stop();
-  memset(enterModeFirstTime, true, sizeof(enterModeFirstTime));
+  //memset(enterModeFirstTime, true, sizeof(enterModeFirstTime)); // wird in case 0 eh gemacht
 }
 
 void loop()
@@ -107,7 +107,7 @@ void loop()
     jump_depth = (int)lastValues[1];
     offTimer.stop();
 
-    Serial.print(" JUMPS # ");    Serial.print(jump_counter);    Serial.print(" INTERVAL: ");    Serial.print(jump_interval);    Serial.print(" DEPTH: ");
+    Serial.print(" JUMP #");    Serial.print(jump_counter);    Serial.print("\tINTERVAL: ");    Serial.print(jump_interval);    Serial.print("\tDEPTH: ");
     Serial.println(jump_depth);
   }
 
@@ -118,11 +118,10 @@ void loop()
 
   /* CHANGING THE MODE */  
 
-  int testmode = 3; // beware the jump counter
+  int testmode = 0; // beware the jump counter
 
   if (testmode > 0)
   {
-
     if (mode == 0 && x > 1)
     {
       gotoMode(testmode);
@@ -140,7 +139,6 @@ void loop()
     // transition mode 0 to 1 on input
     if (mode == 0 && x > 1)
     {
-      Taste::setPedal(true);
       gotoMode(1);
     }
 
@@ -148,16 +146,12 @@ void loop()
     if (mode == 2 && jump_counter == 2)
     {
       gotoMode(3);
-      playTimer.stop();
-      Taste::setPedal(false);
     }
 
     // transition mode 3 to 4 after 10 jumps
     if (mode == 3 && jump_counter == 6)
     {
       gotoMode(4);
-      Taste::overrideVelo(0);
-      stopAll();
     }
 
     if (mode == 4 && jump_counter == 24)
@@ -201,39 +195,45 @@ void loop()
     }
   }
 
+  /* COMPOSITION  */
+
   switch (mode)
   {
   case 0:
+
     offTimer.stop();
     jump_counter = 0;
+    memset(enterModeFirstTime, true, sizeof(enterModeFirstTime));
+    Taste::overrideVelo(0);
 
     break;
   case 1:
 
-    /*if (playTimer.hasPassed(500)) {
-        playTimer.restart();
-        tasten[30].play(150, 10);
-        }*/
+    if(entering(1)) {
+      Taste::setPedal(true);
+      Serial.println("welcome! entering");
 
-    for (int i = 0; i < 12; i++)
-    {
-      tasten[welcome[i]].playDelayed(i * (300 - 10 * i), 200);
-      tasten[welcome[i]].playDelayed(i * (200 - 10 * i), 200);
+      for (int i = 0; i < 12; i++) // play welcome chord, waiting to start jumping
+      {
+        tasten[welcome[i]].playDelayed(i * (300 - 10 * i), 200);
+        tasten[welcome[i]].playDelayed(i * (200 - 10 * i), 200);
+      }
     }
-    gotoMode(2);
+    //gotoMode(2);
 
     break;
-  case 2: // waiting to start jumping
+  case 2: 
 
     break;
   case 3:
 
   {
 
-    if (enterModeFirstTime[3])
+    if (entering(3))
     {
       jumps_when_enter = jump_counter;
-      enterModeFirstTime[3] = false;
+      playTimer.stop();
+      Taste::setPedal(false);
     }
 
     if (onJump())
@@ -252,6 +252,7 @@ void loop()
 
     const int tempo = 100 - ((jump_counter_mode3)*5); // ist irgendwann zu schnell und hört auf
     //const int tempo = 30;
+    Serial.println(tempo);
 
     if (x < 1)
     {
@@ -311,6 +312,8 @@ void loop()
       jumps_when_enter = jump_counter;
       enterModeFirstTime[4] = false;
       Taste::setPedal(true);
+      Taste::overrideVelo(0);
+      stopAll();
     }
 
     if (onJump()) {
@@ -488,12 +491,12 @@ void loop()
     break;
   case 10: // mode 10 from middle to the sides
 
-    if (enterModeFirstTime[10])
+    if (entering(10))
     {
       Taste::setPedal(true);
-      enterModeFirstTime[10] = false;
       partNote = 30;
       partNote2 = 29;
+      Serial.println("first time entering mode 10");
     }
 
     {
@@ -531,9 +534,8 @@ void loop()
     }
     break;
   case 11:
-    if(enterModeFirstTime[11]) {
+    if(entering(11)) {
       partNote = 1;
-      enterModeFirstTime[11] = false;
     }
 
     if(onJump() && jump_counter%4 < 2) {
@@ -594,6 +596,15 @@ bool onJump() {
     } else {
       return false;
     }
+}
+
+bool entering(int mode) {
+  if (enterModeFirstTime[mode]) {
+    enterModeFirstTime[mode] = false;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void stopAll()

@@ -172,7 +172,7 @@ void loop()
       }
     }*/
 
-  int testmode = 10; // beware the jump counter
+  int testmode = 11; // beware the jump counter
 
   if (testmode > 0)
   {
@@ -538,6 +538,9 @@ void loop()
     }
     break;
   case 11:
+    if(onJump()) {
+      Serial.println("Yeah!");
+    }
 
     break;
   }
@@ -574,6 +577,14 @@ void gotoMode(int m)
     Serial.print("Mode: ");
     Serial.println(m);
   }
+}
+
+bool onJump() {
+    if(jumpTimer.elapsed() == 0 || jumpTimer.elapsed() == 1 || jumpTimer.elapsed() == 2) {
+      return true;
+    } else {
+      return false;
+    }
 }
 
 void stopAll()

@@ -41,16 +41,12 @@ int note2 = 0;
 int note3 = 0;
 int newVelo = 0;
 int xNote;
-
-int part = 0;
 int partNote = 0;
 int partNote2 = 0;
-bool enterModeFirstTime[20]; // wieder auf true setzen bei modewechsel
+bool enterModeFirstTime[20];
 
 int record[900];
 
-int mayor[] = {0, 2, 2, 1, 2, 2, 2, 1}; // 0 2 4 5 7 9 11 12
-int minor[] = {0, 2, 1, 2, 2, 1, 2, 2};
 int minor_seven[] = {3, 4, 3, 2};
 
 int scaled;
@@ -359,7 +355,7 @@ void loop()
     {
       if (mode_jumps > 8)
       {
-        Taste::setPedal(true); // gibt true or false
+        Taste::setPedal(true);
       }
       else
       {
@@ -467,7 +463,7 @@ void loop()
     }
   }
   break;
-  case 8: // mode 8 working with scales
+  case 8: // mode 8 working with scales MODE NOT IN USE
 
     if (entering(8))
     {
@@ -501,7 +497,6 @@ void loop()
 
       if (playTimer.hasPassed(12, true))
       {
-        //partNote += minor[partNote % 8];
 
         if (!direction)
         {
@@ -529,7 +524,7 @@ void loop()
       }
     }
     break;
-  case 10:
+  case 10: // radom keys velocity change MODE NOT IN USE
     if (entering(10))
     {
       partNote = 1;

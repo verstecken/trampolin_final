@@ -13,6 +13,7 @@ Chrono halfTimer;
 Chrono jumpTimer;
 Chrono veloTimer;
 Chrono repeatTimer; // mode 7
+Chrono buttonTimer;
 
 double offset = 0;
 double x, y;
@@ -20,7 +21,7 @@ int mode = 0;
 int jump_counter = 0;
 int mode_jumps = 0;
 const int MAX_LAST_VALUES = 3;
-const float TOLERANCE = 0;
+const float TOLERANCE = 1;
 float lastValues[MAX_LAST_VALUES];
 int total_time = millis();
 int last_jump_time = 0;
@@ -63,6 +64,8 @@ void setup()
   Serial.begin(115200);
   pinMode(11, OUTPUT);       // Taster
   pinMode(12, INPUT_PULLUP); // Taster
+  pinMode(9, OUTPUT);       // Taster
+  pinMode(10, INPUT_PULLUP); // Taster
 
   for (int i = 0; i < 60; i++)
   {
@@ -70,6 +73,8 @@ void setup()
   }
 
   repeatTimer.stop();
+
+  threshold = 18;
 }
 
 void loop()
@@ -93,11 +98,11 @@ void loop()
 
   if (mode == 0 || mode == 1)
   {
-    threshold = 18;
+   // threshold = 18;
   }
   else
   {
-    threshold = 18; // this has to be calibrated
+   // threshold = 18; // this has to be calibrated
   }
 
   if (lastValues[0] < lastValues[1] && lastValues[1] > lastValues[2] && abs(x) > threshold && jumpTimer.hasPassed(200))
@@ -588,6 +593,12 @@ void loop()
   {
     sensor.calibrate();
   }
+
+  if ((digitalRead(10) == LOW) && buttonTimer.hasPassed(300, true))
+  {
+    changeThreshold();
+  } 
+
   updateTasten();
 }
 
@@ -651,6 +662,26 @@ void stopAll()
     tasten[i].stop();
   }
 }
+
+void changeThreshold() {
+    const static int thresholds[] = {5, 10, 18};
+    const static size_t tr_size = sizeof(thresholds) / sizeof(int);
+
+    for(int i = 0; i < tr_size; i++) {
+          Serial.print(threshold);
+          Serial.print("<<t i>>");
+          Serial.println(i);
+      if(threshold == thresholds[i]) {
+        threshold = thresholds[(i+1)%tr_size];
+        break;
+      }
+    }
+
+    playDelayed(threshold, 0, 60);
+    Serial.print("CHAINGING THRESHOLD to ");
+    Serial.println(threshold);
+    Serial.println(tr_size);
+};
 
 
 void play(int note, int time = 300, int velo = 50) {

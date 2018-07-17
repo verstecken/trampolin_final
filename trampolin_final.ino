@@ -53,6 +53,9 @@ int scaled;
 
 int rec = 0;
 
+void play(int note, int time = 300, int velo = 50);
+void playDelayed(int note, int delay, int time = 300, int velo = 50);
+
 void setup()
 {
   sensor.init();
@@ -216,11 +219,27 @@ void loop()
 
     if (entering(1))
     {
-      Taste::setPedal(true);
+      Taste::setPedal(false);
+
+      int random_variation[] = {0,1,2,3,4,5,6,7,8,9,10,11};
+
+      const size_t n = sizeof(random_variation) / sizeof(random_variation[0]);
+
+      for (size_t i = 0; i < n - 1; i++)
+      {
+          size_t j = random(0, n - i);
+
+          int t = random_variation[i];
+          random_variation[i] = random_variation[j];
+          random_variation[j] = t;
+      }
 
       for (int i = 0; i < 12; i++) // play welcome chord
       {
-        tasten[welcome[i]].playDelayed(i * (220 - 10 * i), 200);
+        //playDelayed(welcome[random_variation[i]], i * (220 - 10 * i), 200);
+        //playDelayed(welcome[i], i * (220 - 10 * i), 200);
+        play(0);
+
       }
     }
 
@@ -237,10 +256,10 @@ void loop()
     if (onJump())
     {
       partNote = random(0, 12);
-      tasten[welcome[partNote]].playDelayed(jump_interval / 3, 300, 70);
-      tasten[welcome[partNote + 1 % 13]].playDelayed((jump_interval / 3) + 40, 60, 30);
-      tasten[welcome[partNote - 1 % 13]].playDelayed((jump_interval / 3) + 20, 60, 30);
-      tasten[(welcome[partNote] + 1) % 60].playDelayed((jump_interval / 3) + 100, 80, 100);
+      playDelayed(welcome[partNote], jump_interval / 3, 300, 70);
+      playDelayed(welcome[partNote + 1 % 13], (jump_interval / 3) + 40, 60, 30);
+      playDelayed(welcome[partNote - 1 % 13], (jump_interval / 3) + 20, 60, 30);
+      playDelayed((welcome[partNote] + 1) % 60, (jump_interval / 3) + 100, 80, 100);
     }
 
     break;
@@ -268,8 +287,8 @@ void loop()
       if (playTimer.hasPassed(tempo, true))
       {
 
-        tasten[blackkeys[partNote]].play(70, 100);
-        tasten[whitekeys[partNote2]].play(70, 100);
+        play(blackkeys[partNote], 70, 100);
+        play(whitekeys[partNote2], 70, 100);
 
         if (b_direction)
         {
@@ -327,25 +346,26 @@ void loop()
     if (onJump())
     {
       playTimer.restart();
-      xNote = map(jump_depth, 18, 40, 0, 59);
-      tasten[xNote].play(150, 100);
-      tasten[xNote + 1].play(150, 100);
-      tasten[xNote + 5].play(150, 100);
+
+      xNote = map(constrain(jump_depth, 18, 40), 18, 40, 0, 59);
+      play(xNote, 150, 100);
+      play(xNote + 1, 150, 100);
+      play(xNote + 5, 150, 100);
     }
 
     if (playTimer.hasPassed(jump_interval / 3) & playTimer.isRunning())
     {
       Serial.println(xNote);
-      tasten[xNote + 12].play(80, 100);
-      tasten[xNote + 1 + 12].play(80, 100);
-      tasten[xNote + 5 + 12].play(80, 100);
+      play(xNote + 12, 80, 100);
+      play(xNote + 1 + 12, 80, 100);
+      play(xNote + 5 + 12, 80, 100);
       playTimer.stop();
     }
 
     /*if (playTimer.hasPassed(jump_interval / 3 * 2) & playTimer.isRunning())
     {
       Serial.println(xNote);
-      tasten[xNote+5+24].play(150, 100);
+      play(xNote+5+24, 150, 100);
       playTimer.stop();
     }*/
 
@@ -378,18 +398,18 @@ void loop()
 
     if (playTimer.hasPassed(70, true) && !tasten[note % 20].isPlaying())
     {
-      tasten[note % 20].play(50);
+      play(note % 20, 50);
       note++;
     }
     if (playTimer2.hasPassed(70, true) && !tasten[note2 % 20 + 20].isPlaying())
     {
-      tasten[note2 % 20 + 20].play(50);
+      play(note2 % 20 + 20, 50);
       note2++;
     }
 
     if (playTimer3.hasPassed(70, true) && !tasten[note3 % 20 + 40].isPlaying())
     {
-      tasten[note3 % 20 + 40].play(50);
+      play(note3 % 20 + 40, 50);
       note3++;
     }
 
@@ -410,7 +430,7 @@ void loop()
       {
         if (xNote != 17)
         {
-          tasten[xNote].play(40, 127);
+          play(xNote, 40, 127);
         }
       }
     }
@@ -438,7 +458,7 @@ void loop()
       {
         if (xNote != 17)
         {
-          tasten[xNote].play(40, 127);
+          play(xNote, 40, 127);
         }
         record[rec] = xNote;
         rec++;
@@ -453,7 +473,7 @@ void loop()
       {
         if ((record[i] + offset) != 17 && (record[i] + offset) < 60)
         {
-          tasten[(record[i] + offset) % 60].playDelayed(i * interval, 40, 127);
+          playDelayed((record[i] + offset) % 60, i * interval, 40, 127);
         }
       }
 
@@ -478,7 +498,7 @@ void loop()
 
     for (int i = 0, scaled = 6; scaled < 60; scaled += minor_seven[i % 4], i++)
     {
-      tasten[scaled].playDelayed(i * 50, 50, 40);
+      playDelayed(scaled, i * 50, 50, 40);
     }
     gotoMode(9);
 
@@ -500,12 +520,12 @@ void loop()
 
         if (!direction)
         {
-          tasten[partNote].play(80, 100);
+          play(partNote, 80, 100);
           partNote++;
         }
         else
         {
-          tasten[partNote2].play(80, 100);
+          play(partNote2, 80, 100);
           partNote2--;
         }
 
@@ -541,7 +561,7 @@ void loop()
 
     if (playTimer.hasPassed(100, true))
     {
-      tasten[random(0, 59)].play(60);
+      play(random(0, 59), 60);
       if (partNote % 5 == 0)
       {
         playTimer.delay(200);
@@ -630,4 +650,23 @@ void stopAll()
   {
     tasten[i].stop();
   }
+}
+
+
+void play(int note, int time = 300, int velo = 50) {
+  if(note < 0 || note > 59) {
+    Serial.print(note);
+    Serial.println(": FEHLER");
+    return;
+  } 
+    tasten[note].play(time, velo);
+}
+
+void playDelayed(int note, int delay, int time = 300, int velo = 50) {
+  if(note < 0 || note > 59) {
+    Serial.print(note);
+    Serial.println(": FEHLER with delayed");
+    return;
+  } 
+    tasten[note].playDelayed(delay, time, velo);
 }

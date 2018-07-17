@@ -132,7 +132,7 @@ void loop()
 
   /* CHANGING THE MODE */
 
-  int testmode = 0; // beware the jump counter
+  int testmode = 7; // beware the jump counter
 
   if (testmode > 0)
   {
@@ -453,7 +453,7 @@ void loop()
 
     const int interval = 35;      // milliseconds between reorded/played notes
     const int offset = 0;         // echo notes offset
-    const int max_echo_notes = 7; // how many last recorded notes
+    const int max_echo_notes = 3; // how many last recorded notes
 
     if (x > 2)
     {
